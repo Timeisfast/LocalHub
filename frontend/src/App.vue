@@ -9,7 +9,7 @@ import { RouterLink, RouterView } from 'vue-router'
   <div class="min-h-screen bg-gray-50 flex flex-col font-sans">
     
     <!-- 1. 공통 GNB 헤더 영역 (의뢰서 스펙 반영) -->
-    <header class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+    <header class="bg-white/70 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50 shadow-sm">
       <div class="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
         
         <!-- 로고 영역: 클릭 시 홈으로 이동 -->

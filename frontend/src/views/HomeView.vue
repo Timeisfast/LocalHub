@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen bg-gray-50 text-gray-900 font-sans pb-24">
     <!-- 1. 메인 배너 섹션 (선정 권역 소개) -->
-    <section class="relative bg-gradient-to-r from-blue-700 to-indigo-800 text-white py-16 px-6 text-center shadow-md">
+    <section class="relative bg-gradient-to-tr from-indigo-900 via-blue-800 to-sky-700 text-white py-16 px-6 text-center shadow-md">
       <div class="max-w-4xl mx-auto">
         <span class="bg-blue-500 text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full bg-opacity-30">
           LocalHub 커뮤니티
