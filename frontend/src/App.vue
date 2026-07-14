@@ -1,7 +1,6 @@
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
-// 추후 챗봇 위젯 컴포넌트가 완성되면 여기에 import해서 얹어두면 됨
-// import ChatWidget from './components/chat/ChatWidget.vue' 
+import ChatWidget from './components/chat/ChatWidget.vue' 
 </script>
 
 <template>
@@ -52,12 +51,12 @@ import { RouterLink, RouterView } from 'vue-router'
     </footer>
 
     <!-- 4. 챗봇 플로팅 위젯 레이어 (여기에 위치하면 페이지가 바뀌어도 챗봇이 유지됨) -->
-    <!-- <ChatWidget /> -->
-    <div class="fixed bottom-6 right-6 z-50">
+    <ChatWidget />
+    <!-- <div class="fixed bottom-6 right-6 z-50">
       <button class="bg-blue-600 text-white p-3.5 rounded-full shadow-xl hover:bg-blue-700 hover:scale-105 transition-all flex items-center justify-center font-bold text-sm">
         💬 Chat
       </button>
-    </div>
+    </div> -->
 
   </div>
 </template>
