@@ -67,7 +67,7 @@
 
           <!-- 맛집 카드 (배경 이미지 적용 및 호버 이펙트 고도화) -->
           <router-link 
-            to="/posts?category=tour" 
+            to="/posts?category=food" 
             class="group relative overflow-hidden h-40 rounded-2xl shadow-sm border border-gray-200/80 hover:border-blue-500 hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-end p-5 text-left"
           >
             <!-- 1. 배경 이미지 (기본 상태에서 미세한 블러와 줌 효과 제공) -->
@@ -92,7 +92,7 @@
 
           <!-- 축제·행사 카드 (배경 이미지 적용 및 호버 이펙트 고도화) -->
           <router-link 
-            to="/posts?category=tour" 
+            to="/festivals" 
             class="group relative overflow-hidden h-40 rounded-2xl shadow-sm border border-gray-200/80 hover:border-blue-500 hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-end p-5 text-left"
           >
             <!-- 1. 배경 이미지 (기본 상태에서 미세한 블러와 줌 효과 제공) -->

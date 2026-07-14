@@ -28,6 +28,11 @@ const router = createRouter({
       path: '/posts/:id/edit',
       name: 'post-edit',
       component: () => import('../views/PostFormView.vue')
+    },
+    {
+      path: '/festivals',
+      name: 'festival-calendar',
+      component: () => import('../views/FestivalCalendarView.vue')
     }
   ]
 })
