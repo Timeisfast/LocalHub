@@ -1,26 +1,36 @@
 <template>
   <div class="min-h-screen bg-gray-50 text-gray-900 font-sans pb-24">
-    <!-- 1. 메인 배너 섹션 (선정 권역 소개) -->
-    <section class="relative overflow-hidden bg-gradient-to-br from-slate-900 via-indigo-950 to-blue-900 text-white py-20 px-6 shadow-xl">
-      <!-- 배경 디자인 데코레이션용 원형 Blur 이펙트 -->
-      <div class="absolute -top-10 -left-10 w-40 h-40 bg-blue-500/20 rounded-full blur-3xl"></div>
-      <div class="absolute -bottom-20 -right-10 w-64 h-64 bg-indigo-500/20 rounded-full blur-3xl"></div>
+    <!-- 홈 화면 비주얼 이미지 배너 -->
+    <section class="relative overflow-hidden text-white py-24 px-6 shadow-xl h-[340px] sm:h-[400px] flex items-center justify-center">
       
-      <div class="relative max-w-4xl mx-auto text-center">
-        <span class="inline-flex items-center gap-1.5 bg-blue-500/20 text-blue-300 text-xs font-semibold px-3 py-1 rounded-full border border-blue-500/30 backdrop-blur-sm">
+      <!-- 1. 배경 이미지 배치 (object-cover로 꽉 채우고 중심 맞추기) -->
+      <img 
+        src="@/assets/seoul-bg.jpg" 
+        alt="서울 전경" 
+        class="absolute inset-0 w-full h-full object-cover object-center"
+      />
+      
+      <!-- 2. 어두운 오버레이 필터 레이어 (글씨 가독성을 위해 어둡게 처리하고 은은한 푸른빛 얹기) -->
+      <div class="absolute inset-0 bg-gradient-to-b from-slate-950/70 via-slate-900/60 to-slate-950/85"></div>
+      
+      <!-- 3. 원형 Blur 데코레이션 (오버레이 위에 살짝 얹어서 트렌디함 더하기) -->
+      <div class="absolute -top-10 -left-10 w-40 h-40 bg-blue-500/10 rounded-full blur-3xl"></div>
+      
+      <!-- 4. 실제 콘텐츠 텍스트 영역 (배경보다 위에 떠 있도록 z-10 설정) -->
+      <div class="relative z-10 max-w-4xl mx-auto text-center">
+        <span class="inline-flex items-center gap-1.5 bg-blue-500/30 text-blue-200 text-xs font-semibold px-3 py-1 rounded-full border border-blue-400/20 backdrop-blur-sm">
           <span class="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse"></span>
-          LocalHub 커뮤니티
+          LocalHub 서울 커뮤니티
         </span>
-        <h1 class="text-4xl font-black mt-5 sm:text-6xl tracking-tight leading-tight">
-          서울 권역 정보 공유 <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-sky-300">커뮤니티</span>
+        <h1 class="text-4xl font-black mt-5 sm:text-5xl tracking-tight leading-tight text-white drop-shadow-md">
+          서울 권역 정보 공유 <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 to-sky-200">커뮤니티</span>
         </h1>
-        <p class="mt-5 text-sm sm:text-base text-slate-300 max-w-lg mx-auto leading-relaxed">
-          우리 지역 주민과 관광객이 자유롭게 소통하는 공간입니다.<br>
-          다양한 관광지, 맛집, 축제 정보를 한눈에 만나보세요!
+        <p class="mt-4 text-xs sm:text-sm text-slate-200 max-w-lg mx-auto leading-relaxed drop-shadow">
+          서울 주민들과 여행객들이 직접 나누는 생생한 로컬 정보! <br>
+          실시간 관광지 정보부터 맛집, 다채로운 축제 이야기까지 한눈에 확인하세요.
         </p>
       </div>
     </section>
-
     <!-- 메인 콘텐츠 영역 (1단 레이아웃으로 공수 최소화) -->
     <main class="max-w-5xl mx-auto px-4 mt-10">
       
@@ -30,25 +40,79 @@
           <span>📂</span> 카테고리 바로가기
         </h2>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <!-- 관광지 카드 -->
-          <router-link to="/posts?category=tour" class="bg-white p-6 rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-gray-100 hover:border-blue-500 hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 text-center">
-            <div class="text-3xl mb-2 group-hover:scale-110 transition-transform">🏛️</div>
-            <div class="font-bold text-gray-800 text-lg">관광지</div>
-            <p class="text-xs text-gray-500 mt-1">지역 명소 및 추천 명소</p>
+          <!-- 관광지 카드 (배경 이미지 적용 및 호버 이펙트 고도화) -->
+          <router-link 
+            to="/posts?category=tour" 
+            class="group relative overflow-hidden h-40 rounded-2xl shadow-sm border border-gray-200/80 hover:border-blue-500 hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-end p-5 text-left"
+          >
+            <!-- 1. 배경 이미지 (기본 상태에서 미세한 블러와 줌 효과 제공) -->
+            <img 
+              src="@/assets/tour-bg.jpg" 
+              alt="관광지" 
+              class="absolute inset-0 w-full h-full object-cover object-center filter brightness-95 group-hover:scale-110 transition-transform duration-500"
+            />
+
+            <!-- 2. 그라데이션 어두운 오버레이 (하단 글씨가 또렷하게 보이도록 잡아주는 그라데이션) -->
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-900/40 to-transparent"></div>
+
+            <!-- 3. 카드 콘텐츠 (z-10으로 오버레이 위에 띄우기) -->
+            <div class="relative z-10">
+              <div class="flex items-center gap-1.5 mb-1">
+                <span class="text-xl group-hover:animate-bounce">🏛️</span>
+                <span class="font-bold text-white text-lg tracking-tight drop-shadow-md">관광지</span>
+              </div>
+              <p class="text-[11px] text-gray-200 font-medium drop-shadow-sm">지역 명소 및 추천 명소</p>
+            </div>
           </router-link>
 
-          <!-- 맛집 카드 -->
-          <router-link to="/posts?category=food" class="bg-white p-6 rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-gray-100 hover:border-blue-500 hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 text-center">
-            <div class="text-3xl mb-2 group-hover:scale-110 transition-transform">🍕</div>
-            <div class="font-bold text-gray-800 text-lg">맛집</div>
-            <p class="text-xs text-gray-500 mt-1">행정 인증 맛집 및 추천 식당</p>
+          <!-- 맛집 카드 (배경 이미지 적용 및 호버 이펙트 고도화) -->
+          <router-link 
+            to="/posts?category=tour" 
+            class="group relative overflow-hidden h-40 rounded-2xl shadow-sm border border-gray-200/80 hover:border-blue-500 hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-end p-5 text-left"
+          >
+            <!-- 1. 배경 이미지 (기본 상태에서 미세한 블러와 줌 효과 제공) -->
+            <img 
+              src="@/assets/restaurant-bg.jpg" 
+              alt="맛집" 
+              class="absolute inset-0 w-full h-full object-cover object-center filter brightness-95 group-hover:scale-110 transition-transform duration-500"
+            />
+
+            <!-- 2. 그라데이션 어두운 오버레이 (하단 글씨가 또렷하게 보이도록 잡아주는 그라데이션) -->
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-900/40 to-transparent"></div>
+
+            <!-- 3. 카드 콘텐츠 (z-10으로 오버레이 위에 띄우기) -->
+            <div class="relative z-10">
+              <div class="flex items-center gap-1.5 mb-1">
+                <span class="text-xl group-hover:animate-bounce">🍕</span>
+                <span class="font-bold text-white text-lg tracking-tight drop-shadow-md">맛집</span>
+              </div>
+              <p class="text-[11px] text-gray-200 font-medium drop-shadow-sm">맛집 및 추천 식당</p>
+            </div>
           </router-link>
 
-          <!-- 축제·행사 카드 -->
-          <router-link to="/posts?category=festival" class="bg-white p-6 rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-gray-100 hover:border-blue-500 hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 text-center">
-            <div class="text-3xl mb-2 group-hover:scale-110 transition-transform">🎉</div>
-            <div class="font-bold text-gray-800 text-lg">축제·행사</div>
-            <p class="text-xs text-gray-500 mt-1">이번 달 열리는 다채로운 축제 정보</p>
+          <!-- 축제·행사 카드 (배경 이미지 적용 및 호버 이펙트 고도화) -->
+          <router-link 
+            to="/posts?category=tour" 
+            class="group relative overflow-hidden h-40 rounded-2xl shadow-sm border border-gray-200/80 hover:border-blue-500 hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-end p-5 text-left"
+          >
+            <!-- 1. 배경 이미지 (기본 상태에서 미세한 블러와 줌 효과 제공) -->
+            <img 
+              src="@/assets/festival-bg.jpg" 
+              alt="축제·행사" 
+              class="absolute inset-0 w-full h-full object-cover object-center filter brightness-95 group-hover:scale-110 transition-transform duration-500"
+            />
+
+            <!-- 2. 그라데이션 어두운 오버레이 (하단 글씨가 또렷하게 보이도록 잡아주는 그라데이션) -->
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-900/40 to-transparent"></div>
+
+            <!-- 3. 카드 콘텐츠 (z-10으로 오버레이 위에 띄우기) -->
+            <div class="relative z-10">
+              <div class="flex items-center gap-1.5 mb-1">
+                <span class="text-xl group-hover:animate-bounce">🎉</span>
+                <span class="font-bold text-white text-lg tracking-tight drop-shadow-md">축제·행사</span>
+              </div>
+              <p class="text-[11px] text-gray-200 font-medium drop-shadow-sm">이번 달 열리는 다채로운 축제 정보</p>
+            </div>
           </router-link>
         </div>
       </section>
