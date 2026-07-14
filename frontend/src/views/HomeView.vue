@@ -61,11 +61,11 @@
                 <span class="text-xl group-hover:animate-bounce">🏛️</span>
                 <span class="font-bold text-white text-lg tracking-tight drop-shadow-md">관광지</span>
               </div>
-              <p class="text-[11px] text-gray-200 font-medium drop-shadow-sm">지역 명소 및 추천 명소</p>
+              <p class="text-[11px] text-gray-200 font-medium drop-shadow-sm">아름다운 서울 명소</p>
             </div>
           </router-link>
 
-          <!-- 맛집 카드 (배경 이미지 적용 및 호버 이펙트 고도화) -->
+          <!-- 식당 카드 (배경 이미지 적용 및 호버 이펙트 고도화) -->
           <router-link 
             to="/posts?category=food" 
             class="group relative overflow-hidden h-40 rounded-2xl shadow-sm border border-gray-200/80 hover:border-blue-500 hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-end p-5 text-left"
@@ -73,7 +73,7 @@
             <!-- 1. 배경 이미지 (기본 상태에서 미세한 블러와 줌 효과 제공) -->
             <img 
               src="@/assets/restaurant-bg.jpg" 
-              alt="맛집" 
+              alt="식당" 
               class="absolute inset-0 w-full h-full object-cover object-center filter brightness-95 group-hover:scale-110 transition-transform duration-500"
             />
 
@@ -84,9 +84,9 @@
             <div class="relative z-10">
               <div class="flex items-center gap-1.5 mb-1">
                 <span class="text-xl group-hover:animate-bounce">🍕</span>
-                <span class="font-bold text-white text-lg tracking-tight drop-shadow-md">맛집</span>
+                <span class="font-bold text-white text-lg tracking-tight drop-shadow-md">식당</span>
               </div>
-              <p class="text-[11px] text-gray-200 font-medium drop-shadow-sm">맛집 및 추천 식당</p>
+              <p class="text-[11px] text-gray-200 font-medium drop-shadow-sm">서울 식당 모아모아</p>
             </div>
           </router-link>
 
