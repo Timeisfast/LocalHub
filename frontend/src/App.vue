@@ -16,22 +16,12 @@ import ChatWidget from './components/chat/ChatWidget.vue'
           <span class="text-2xl font-black tracking-tight text-blue-600 font-mono">LocalHub</span>
         </RouterLink>
 
-        <!-- 통합 검색 및 메뉴 바 영역 -->
+        <!-- 메뉴 바 영역 -->
         <div class="flex items-center gap-6">
           <nav class="hidden sm:flex items-center gap-4 text-sm font-medium text-gray-600">
             <RouterLink to="/" class="hover:text-blue-600 transition-colors" active-class="text-blue-600 font-bold">홈</RouterLink>
             <RouterLink to="/posts" class="hover:text-blue-600 transition-colors" active-class="text-blue-600 font-bold">게시판</RouterLink>
           </nav>
-
-          <!-- 의뢰서 예시의 우측 상단 돋보기(Q) 검색바 뼈대 -->
-          <div class="relative">
-            <input 
-              type="text" 
-              placeholder="통합 검색..." 
-              class="w-40 sm:w-48 bg-gray-100 text-xs rounded-lg pl-8 pr-3 py-2 border border-transparent focus:outline-none focus:bg-white focus:border-blue-500 transition-all"
-            />
-            <span class="absolute left-2.5 top-2.5 text-gray-400 text-xs">🔍</span>
-          </div>
         </div>
 
       </div>
