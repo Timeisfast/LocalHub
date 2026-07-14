@@ -33,6 +33,11 @@ const router = createRouter({
       path: '/festivals',
       name: 'festival-calendar',
       component: () => import('../views/FestivalCalendarView.vue')
+    },
+    {
+      path: '/restaurants',
+      name: 'restaurant-list',
+      component: () => import('../views/RestaurantListView.vue')
     }
   ]
 })
