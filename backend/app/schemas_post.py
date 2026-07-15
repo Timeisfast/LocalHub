@@ -18,4 +18,4 @@ class PostResponse(PostBase):
     views: int
 
     class Config:
-        orm_mode = True   # SQLAlchemy 모델을 Pydantic으로 변환 가능하게 설정
+        from_attributes  = True   # SQLAlchemy 모델을 Pydantic으로 변환 가능하게 설정

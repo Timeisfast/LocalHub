@@ -33,4 +33,4 @@ class FestivalResponse(BaseModel):
 
     class Config:
         from_attributes = True
-        orm_mode = True
+        # orm_mode = True
