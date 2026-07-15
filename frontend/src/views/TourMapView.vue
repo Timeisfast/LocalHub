@@ -25,10 +25,11 @@
         </span>
       </div>
 
-      <!-- 3. 메인 레이아웃 -->
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- 3. 메인 레이아웃 (지도와 우측 상세 패널 그리드) -->
+      <!-- 💡 grid 닫는 div 태그가 우측 상세 패널 바로 아래에 닫히도록 완벽히 가뒀습니다 -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         
-        <!-- 지도 영역 -->
+        <!-- 지도 영역 (2/3 차지) -->
         <div class="lg:col-span-2 relative">
           <!-- 지도 로딩 표시용 스켈레톤 -->
           <div 
@@ -45,8 +46,8 @@
           ></div>
         </div>
 
-        <!-- 4. 우측 상세 정보 패널 -->
-        <div class="lg:col-span-1 flex flex-col justify-between bg-white p-6 rounded-2xl border border-gray-200/80 shadow-sm min-h-[400px]">
+        <!-- 우측 상세 정보 패널 (1/3 차지) -->
+        <div class="lg:col-span-1 flex flex-col justify-between bg-white p-6 rounded-2xl border border-gray-200/80 shadow-sm min-h-[500px]">
           <div v-if="selectedTour">
             <!-- 썸네일 이미지 -->
             <div class="h-44 w-full overflow-hidden rounded-xl mb-4 relative bg-gray-100">
@@ -85,7 +86,7 @@
             <p class="text-sm font-semibold">지도의 마커를 클릭하시면<br>상세 정보가 나타납니다.</p>
           </div>
 
-          <!-- 5. 네이버 검색 연동 버튼 -->
+          <!-- 네이버 검색 연동 버튼 -->
           <div class="pt-4 border-t border-gray-100">
             <button 
               :disabled="!selectedTour"
@@ -97,6 +98,64 @@
           </div>
         </div>
 
+      </div> <!-- 💡 [중요] grid 영역 종료 - 여기까지 묶어주어야 하단 관련 글 영역이 전체 너비를 확보합니다! -->
+
+      <!-- ================= 💡 4. 관련 게시글 섹션 (전체 너비 보장) ================= -->
+      <div class="bg-white p-6 rounded-2xl border border-gray-200/80 shadow-sm overflow-hidden">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-lg font-bold text-gray-800 flex items-center gap-2">
+            <span>💬</span> 
+            <span v-if="selectedTour" class="text-blue-600">"{{ selectedTour.title }}"</span>
+            <span v-else>선택된 명소</span> 관련 로컬 이야기
+          </h2>
+          <router-link to="/posts" class="text-xs font-semibold text-blue-600 hover:underline">
+            게시판 바로가기 &rarr;
+          </router-link>
+        </div>
+
+        <!-- 1. 명소 미선택 상태 가이드 -->
+        <div 
+          v-if="!selectedTour" 
+          class="py-12 text-center text-gray-400 text-sm font-medium border border-dashed border-gray-200 rounded-xl"
+        >
+          📍 지도 위의 핀을 클릭해 보세요! 해당 장소가 언급된 이웃들의 게시글을 이곳에서 모아볼 수 있습니다.
+        </div>
+
+        <!-- 2. 관련 후기 없음 상태 예외 처리 -->
+        <div 
+          v-else-if="relatedPosts.length === 0" 
+          class="py-12 text-center text-gray-400 text-sm font-medium border border-dashed border-gray-200 rounded-xl"
+        >
+          😭 아직 이 장소에 관한 게시글이 등록되지 않았습니다. <br>
+          <router-link to="/posts/write" class="text-blue-500 underline mt-2 inline-block">
+            첫 번째 후기를 작성해 주세요!
+          </router-link>
+        </div>
+
+        <!-- 3. 정상 상태: 2열 구조 카드 렌더링 -->
+        <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-4 animate-slide-up">
+          <div 
+            v-for="post in relatedPosts" 
+            :key="post.id"
+            @click="goToPostDetail(post.id)"
+            class="group bg-slate-50 hover:bg-blue-50/30 p-5 rounded-xl border border-gray-200/60 hover:border-blue-300 shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer text-left"
+          >
+            <div class="flex justify-between items-start mb-2.5">
+              <span class="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded">
+                익명 후기
+              </span>
+              <span class="text-[11px] text-gray-400 font-medium">{{ post.date }}</span>
+            </div>
+            
+            <h3 class="font-bold text-sm text-gray-900 group-hover:text-blue-600 transition-colors mb-1.5 truncate">
+              {{ post.title }}
+            </h3>
+            
+            <p class="text-xs text-gray-500 leading-relaxed line-clamp-2">
+              {{ post.content }}
+            </p>
+          </div>
+        </div>
       </div>
 
     </div>
@@ -104,8 +163,10 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue' // 💡 computed 바인딩 추가
+import { useRouter } from 'vue-router' // 💡 라우터 이동용 import 추가
 
+const router = useRouter()
 const mapContainer = ref(null)
 const selectedTour = ref(null)
 const isMapLoading = ref(true)
@@ -133,6 +194,42 @@ const mockTours = ref([
   }
 ])
 
+// 💡 실시간 커뮤니티 Mock 데이터
+const mockPosts = ref([
+  { 
+    id: 7, 
+    title: '여의도 한강공원 물빛광장 다녀온 후기!', 
+    content: '여의도 한강공원은 언제 가도 힐링이네요. 푸드트럭 닭강정 사서 돗자리 펴놓고 물소리 들으며 먹으니까 천국이 따로 없습니다.', 
+    date: '07/14' 
+  },
+  { 
+    id: 5, 
+    title: '양화한강공원 돗자리 명당 아시는 분?', 
+    content: '주말에 양화한강공원으로 피크닉 가려고 하는데 복잡하지 않고 조용하게 한강 뷰 보면서 쉴 수 있는 스팟 추천 좀 부탁드립니다!', 
+    date: '07/13' 
+  },
+  { 
+    id: 3, 
+    title: '가벼운 밤 산책은 역시 양화한강공원이죠.', 
+    content: '성산대교 불 들어올 때 선유도 공원 다리 건너서 양화한강공원 쭉 걷는 코스 너무 은은하고 이쁩니다. 강바람도 시원해요.', 
+    date: '07/11' 
+  }
+])
+
+// 💡 선택된 관광지명이 언급된 관련 게시글 필터링
+const relatedPosts = computed(() => {
+  if (!selectedTour.value) return []
+  const searchKeyword = selectedTour.value.title.trim()
+  return mockPosts.value.filter(post => 
+    post.title.includes(searchKeyword) || post.content.includes(searchKeyword)
+  )
+})
+
+// 💡 상세 게시글 페이지 이동용 함수
+const goToPostDetail = (postId) => {
+  router.push(`/posts/${postId}`)
+}
+
 onMounted(() => {
   loadNaverMapScript()
 })
@@ -152,7 +249,6 @@ const loadNaverMapScript = () => {
   }
 
   const script = document.createElement('script')
-  // 네이버 지도 스크립트 요청 URL 양식
   script.src = `https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=${clientId}`
   script.async = true
 
@@ -172,7 +268,6 @@ const loadNaverMapScript = () => {
 const initMap = () => {
   if (!mapContainer.value) return
 
-  // 경위도 좌표 지정 (기본 중심: 양화한강공원)
   const defaultCenter = new window.naver.maps.LatLng(
     parseFloat(mockTours.value[0].mapy),
     parseFloat(mockTours.value[0].mapx)
@@ -180,8 +275,8 @@ const initMap = () => {
 
   const mapOptions = {
     center: defaultCenter,
-    zoom: 14, // 네이버 지도는 줌 범위가 카카오맵과 다르므로 기본값 14 내외가 적당합니다.
-    zoomControl: true, // 우측 줌 컨트롤러 자동 탑재
+    zoom: 14,
+    zoomControl: true,
     zoomControlOptions: {
       position: window.naver.maps.Position.RIGHT_BOTTOM
     }
@@ -201,20 +296,15 @@ const renderMarkers = () => {
       parseFloat(tour.mapx)
     )
 
-    // 네이버 마커 생성 규격
     const marker = new window.naver.maps.Marker({
       position: position,
       map: mapInstance,
       title: tour.title,
-      // 네이버 기본 핀에 애니메이션 효과 추가 (선택 사항)
       animation: window.naver.maps.Animation.DROP 
     })
 
-    // 네이버 지도 이벤트 리스너 바인딩 (naver.maps.Event 사용)
     window.naver.maps.Event.addListener(marker, 'click', () => {
       selectedTour.value = tour
-      
-      // 마커를 클릭하면 부드럽게 지도의 중심을 마커 위치로 이동
       mapInstance.panTo(position)
     })
   })
@@ -230,3 +320,21 @@ const handleImageError = (e) => {
   e.target.src = 'https://images.unsplash.com/photo-1590001155093-a3c66ab0c3ff?auto=format&fit=crop&w=500&q=80'
 }
 </script>
+
+<style scoped>
+/* 💡 라인 클램프 안전 가이드 및 트랜지션 효과 추가 */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;  
+  overflow: hidden;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-slide-up {
+  animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+</style>
