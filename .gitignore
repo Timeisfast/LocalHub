@@ -1,1 +1,14 @@
+# 가상환경
 venv/
+.venv/
+
+# 환경변수와 API 키
+.env
+.env.*
+
+# 예시 환경변수 파일은 GitHub에 포함
+!.env.example
+
+# Python 캐시
+__pycache__/
+*.py[cod]

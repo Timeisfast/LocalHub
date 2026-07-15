@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from ..database import SessionLocal        # ✅ 상대 import
 from .. import models_post, schemas_post   # ✅ 상대 import
+from pydantic import BaseModel
 
 router = APIRouter(prefix="/posts", tags=["posts"])
 
@@ -37,6 +38,22 @@ def create_post(post: schemas_post.PostCreate, db: Session = Depends(get_db)):
     return new_post
 
 
+
+# 게시글 목록 조회 (페이징)
+@router.get("/page", response_model=list[schemas_post.PostResponse])
+def get_posts_page(page: int = 1, size: int = 10, db: Session = Depends(get_db)):
+    skip = (page - 1) * size
+    posts = (
+        db.query(models_post.Post)
+        .order_by(models_post.Post.id.desc())
+        .offset(skip)
+        .limit(size)
+        .all()
+    )
+    return posts
+
+
+
 # 게시글 상세 조회
 @router.get("/{post_id}", response_model=schemas_post.PostResponse)
 def get_post(post_id: int, db: Session = Depends(get_db)):
@@ -47,6 +64,8 @@ def get_post(post_id: int, db: Session = Depends(get_db)):
         db.commit()
         db.refresh(post)
     return post
+
+
 
 # 게시글 수정 API
 @router.put("/{post_id}")
@@ -62,6 +81,26 @@ def update_post(post_id: int, post: schemas_post.PostCreate, db: Session = Depen
     db.commit()
     db.refresh(db_post)
     return {"message": "게시글이 수정되었습니다."}
+
+
+# ✅ 요청 스키마
+class PasswordVerifyRequest(BaseModel):
+    password: str
+
+# ✅ 응답 스키마
+class PasswordVerifyResponse(BaseModel):
+    valid: bool
+    message: str
+
+# ✅ 비밀번호 확인 API
+@router.post("/{post_id}/verify", response_model=PasswordVerifyResponse)
+def verify_post_password(post_id: int, req: PasswordVerifyRequest, db: Session = Depends(get_db)):
+    post = db.query(models_post.Post).filter(models_post.Post.id == post_id).first()
+    if not post:
+        return {"valid": False, "message": "게시글을 찾을 수 없습니다."}
+    if post.password != req.password:
+        return {"valid": False, "message": "비밀번호가 일치하지 않습니다."}
+    return {"valid": True, "message": "비밀번호가 확인되었습니다."}
 
 
 # 게시글 삭제 API
@@ -88,19 +127,3 @@ def search_posts(keyword: str, db: Session = Depends(get_db)):
         models_post.Post.author.contains(keyword)
     ).order_by(models_post.Post.id.desc()).all()
     return posts
-
-
-# 게시글 목록 조회 (페이징)
-@router.get("/page", response_model=list[schemas_post.PostResponse])
-def get_posts_page(page: int = 1, size: int = 10, db: Session = Depends(get_db)):
-    skip = (page - 1) * size
-    posts = (
-        db.query(models_post.Post)
-        .order_by(models_post.Post.id.desc())
-        .offset(skip)
-        .limit(size)
-        .all()
-    )
-    return posts
-
-

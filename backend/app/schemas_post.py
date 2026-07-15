@@ -14,7 +14,7 @@ class PostCreate(PostBase):
 # 글 조회/응답 스키마
 class PostResponse(PostBase):
     id: int
-    created_at: datetime
+    created_at: datetime | None 
     views: int
 
     class Config:

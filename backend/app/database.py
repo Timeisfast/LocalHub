@@ -35,3 +35,11 @@ Base = declarative_base()
 
 # DB 경로 확인용
 print(f"현재 연결된 DB: {DB_PATH}")
+
+# ✅ FastAPI 의존성으로 쓸 DB 세션 함수
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
