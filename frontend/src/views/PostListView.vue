@@ -66,26 +66,43 @@
                     {{ post.title }}
                   </span>
                 </td>
-                <td class="py-4 px-6 text-right text-gray-400 font-medium">{{ post.date }}</td>
+                <td class="py-4 px-6 text-right text-gray-400 font-medium">{{ formatDate(post.created_at) }}</td>
               </tr>
             </tbody>
           </table>
         </div>
 
-        <div class="border-t border-gray-100 py-4 flex items-center justify-center gap-2">
-          <button class="p-2 rounded hover:bg-gray-100 text-gray-400 hover:text-gray-700 transition-colors">
+        <div 
+          v-if="totalPages > 0" 
+          class="border-t border-gray-100 py-4 flex items-center justify-center gap-2"
+        >
+          <button 
+            @click="changePage(currentPage - 1)"
+            :disabled="currentPage === 1"
+            class="p-2 rounded hover:bg-gray-100 text-gray-400 hover:text-gray-700 disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
+          >
             &lt;
           </button>
-          <button class="px-3.5 py-1.5 text-xs font-bold rounded bg-blue-600 text-white">
-            1
+          
+          <button 
+            v-for="page in totalPages" 
+            :key="page"
+            @click="changePage(page)"
+            :class="[
+              'px-3.5 py-1.5 text-xs font-bold rounded transition-all',
+              currentPage === page 
+                ? 'bg-blue-600 text-white shadow-sm' 
+                : 'text-gray-600 hover:bg-gray-100'
+            ]"
+          >
+            {{ page }}
           </button>
-          <button class="px-3.5 py-1.5 text-xs font-medium rounded text-gray-600 hover:bg-gray-100 transition-colors">
-            2
-          </button>
-          <button class="px-3.5 py-1.5 text-xs font-medium rounded text-gray-600 hover:bg-gray-100 transition-colors">
-            3
-          </button>
-          <button class="p-2 rounded hover:bg-gray-100 text-gray-400 hover:text-gray-700 transition-colors">
+          
+          <button 
+            @click="changePage(currentPage + 1)"
+            :disabled="currentPage === totalPages"
+            class="p-2 rounded hover:bg-gray-100 text-gray-400 hover:text-gray-700 disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
+          >
             &gt;
           </button>
         </div>
@@ -96,13 +113,21 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { postApi } from '@/api/services'
 
 const router = useRouter()
 const searchQuery = ref('')
 const filteredPosts = ref([])
+
+const currentPage = ref(1)
+const pageSize = ref(10)
+const totalItems = ref(0)
+
+const totalPages = computed(() => {
+  return Math.ceil(totalItems.value / pageSize.value)
+})
 
 const formatDate = (isoString) => {
   const date = new Date(isoString)
@@ -114,16 +139,29 @@ const formatDate = (isoString) => {
 const fetchPostData = async () => {
   try{
     if (searchQuery.value.trim()) {
-      filteredPosts.value = await postApi.searchPosts(searchQuery.value.trim())
+      const results = await postApi.searchPosts(searchQuery.value.trim())
+      filteredPosts.value = results
+      totalItems.value = results.length
+      currentPage.value = 1
     } else {
-      filteredPosts.value = await postApi.getPostsPage(1, 10)
+      const allPosts = await postApi.getPosts()
+      totalItems.value = allPosts.length
+
+      filteredPosts.value = await postApi.getPostsPage(currentPage.value, pageSize.value)
     }
   } catch (error) {
     console.error('게시글 로드 중 에러 발생:', error)
   }
 }
 
+const changePage = (newPage) => {
+  if (newPage < 1 || newPage > totalPages.value) return
+  currentPage.value = newPage
+  fetchPostData()
+}
+
 const handleSearch = () => {
+  currentPage.value = 1
   fetchPostData()
 }
 
