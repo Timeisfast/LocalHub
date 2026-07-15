@@ -96,7 +96,63 @@
             </button>
           </div>
         </div>
+      </div>
 
+<div class="bg-white p-6 rounded-2xl border border-gray-200/80 shadow-sm overflow-hidden">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-lg font-bold text-gray-800 flex items-center gap-2">
+            <span>💬</span> 
+            <span v-if="selectedShop" class="text-blue-600">"{{ selectedShop.title }}"</span>
+            <span v-else>선택된 명소</span> 관련 로컬 이야기
+          </h2>
+          <router-link to="/posts" class="text-xs font-semibold text-blue-600 hover:underline">
+            게시판 바로가기 &rarr;
+          </router-link>
+        </div>
+
+        <!-- 1. 명소 미선택 상태 가이드 -->
+        <div 
+          v-if="!selectedShop" 
+          class="py-12 text-center text-gray-400 text-sm font-medium border border-dashed border-gray-200 rounded-xl"
+        >
+          📍 지도 위의 핀을 클릭해 보세요! 해당 장소가 언급된 이웃들의 게시글을 이곳에서 모아볼 수 있습니다.
+        </div>
+
+        <!-- 2. 관련 후기 없음 상태 예외 처리 -->
+        <div 
+          v-else-if="relatedPosts.length === 0" 
+          class="py-12 text-center text-gray-400 text-sm font-medium border border-dashed border-gray-200 rounded-xl"
+        >
+          😭 아직 이 장소에 관한 게시글이 등록되지 않았습니다. <br>
+          <router-link to="/posts/write" class="text-blue-500 underline mt-2 inline-block">
+            첫 번째 후기를 작성해 주세요!
+          </router-link>
+        </div>
+
+        <!-- 3. 정상 상태: 2열 구조로 시원하게 카드 배치 -->
+        <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-4 animate-slide-up">
+          <div 
+            v-for="post in relatedPosts" 
+            :key="post.id"
+            @click="goToPostDetail(post.id)"
+            class="group bg-slate-50 hover:bg-blue-50/30 p-5 rounded-xl border border-gray-200/60 hover:border-blue-300 shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer text-left"
+          >
+            <div class="flex justify-between items-start mb-2.5">
+              <span class="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded">
+                익명 후기
+              </span>
+              <span class="text-[11px] text-gray-400 font-medium">{{ post.date }}</span>
+            </div>
+            
+            <h3 class="font-bold text-sm text-gray-900 group-hover:text-blue-600 transition-colors mb-1.5 truncate">
+              {{ post.title }}
+            </h3>
+            
+            <p class="text-xs text-gray-500 leading-relaxed line-clamp-2">
+              {{ post.content }}
+            </p>
+          </div>
+        </div>
       </div>
 
     </div>
@@ -104,13 +160,66 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue' // computed 추가 필수!
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 const mapContainer = ref(null)
-const selectedShop = ref(null)
+const selectedShop = ref(null) // 기존 코드의 활성화된 쇼핑(혹은 관광지) 객체
 const isMapLoading = ref(true)
 let mapInstance = null
 
+// 1. 전체 게시글 목록 (실제 API 연동 전 프론트엔드 검증용 가상 데이터)[cite: 2, 7]
+const mockPosts = ref([
+  { 
+    id: 7, 
+    title: '여의도 한강공원 물빛광장 다녀온 후기!', 
+    content: '여의도 한강공원은 언제 가도 힐링이네요. 푸드트럭 닭강정 사서 돗자리 펴놓고 물소리 들으며 먹으니까 천국이 따로 없습니다.', 
+    date: '07/14' 
+  },
+  { 
+    id: 6, 
+    title: '통인시장 엽전도시락 가성비 어떤가요?', 
+    content: '통인시장에서만 해볼 수 있는 엽전도시락 체험하고 왔어요! 기름떡볶이가 진짜 별미고 아이들도 신기해하더라고요. 강추합니다.', 
+    date: '07/14' 
+  },
+  { 
+    id: 5, 
+    title: '양화한강공원 돗자리 명당 아시는 분?', 
+    content: '주말에 양화한강공원으로 피크닉 가려고 하는데 복잡하지 않고 조용하게 한강 뷰 보면서 쉴 수 있는 스팟 추천 좀 부탁드립니다!', 
+    date: '07/13' 
+  },
+  { 
+    id: 4, 
+    title: '더현대 서울 주말 웨이팅 팁', 
+    content: '더현대 서울 지하 식품관 웨이팅 지옥에서 살아남는 법 공유합니다. 무조건 방문 전에 어플로 원격 대기 예약 걸어두고 가세요!', 
+    date: '07/12' 
+  },
+  { 
+    id: 3, 
+    title: '가벼운 밤 산책은 역시 양화한강공원이죠.', 
+    content: '성산대교 불 들어올 때 선유도 공원 다리 건너서 양화한강공원 쭉 걷는 코스 너무 은은하고 이쁩니다. 강바람도 시원해요.', 
+    date: '07/11' 
+  }
+])
+
+// 2. 💡 [핵심] 선택된 명소의 상호명이 포함된 글만 필터링하는 실시간 계산 함수
+const relatedPosts = computed(() => {
+  // 선택된 핀이 없으면 빈 배열 반환
+  if (!selectedShop.value) return []
+  
+  const searchKeyword = selectedShop.value.title.trim()
+  
+  // 제목 혹은 본문 내용에 검색 키워드가 들어있는 게시글만 필터링
+  return mockPosts.value.filter(post => 
+    post.title.includes(searchKeyword) || post.content.includes(searchKeyword)
+  )
+})
+
+// 3. 클릭 시 게시글 상세 페이지로 이동하는 액션
+const goToPostDetail = (postId) => {
+  router.push(`/posts/${postId}`)
+}
 // 공공데이터 스펙과 일치하게 설계된 쇼핑 가상 데이터 리스트
 const mockShops = ref([
   {
