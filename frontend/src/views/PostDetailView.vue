@@ -152,18 +152,27 @@ const closePasswordModal = () => {
 const handlePasswordSubmit = async () => {
   const postId = currentPost.value.id
 
-  if (modalMode.value === 'edit') {
-    sessionStorage.setItem(`post_auth_pass_${postId}`, passwordInput.value)
-    router.push(`/posts/${postId}/edit`)
-  } else {
-    try {
-      await postApi.deletePost(postId, passwordInput.value)
-      alert('게시글이 성공적으로 삭제되었습니다.')
-      router.push('/posts')
-    } catch (error) {
-      console.error('삭제 처리 실패:', error)
+  try {
+    const response = await postApi.verifyPostPassword(postId, passwordInput.value)
+
+    if (response && response.valid === true) {
+      isPasswordWrong.value = false
+      isModalOpen.value = false
+
+      if (modalMode.value === 'edit') {
+        sessionStorage.setItem(`post_auth_pass_${postId}`, passwordInput.value)
+        router.push(`/posts/${postId}/edit`)
+      } else if (modalMode.value === 'delete') {
+        await postApi.deletePost(postId, passwordInput.value)
+        alert('게시글이 성공적으로 삭제되었습니다.')
+        router.push(`/posts`)
+      }
+    } else {
       isPasswordWrong.value = true
     }
+  } catch (error) {
+    console.error('비밀번호 검증 실패:', error)
+    isPasswordWrong.value = true
   }
 }
 </script>

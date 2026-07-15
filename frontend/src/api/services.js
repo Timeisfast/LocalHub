@@ -34,6 +34,10 @@ export const postApi = {
     return api.get('/posts/page', {
       params: { page, size }
     })
+  },
+  // 게시글 비밀번호 검증
+  verifyPostPassword(postId, password) {
+    return api.post(`/posts/${postId}/verify`, { password })
   }
 }
 
