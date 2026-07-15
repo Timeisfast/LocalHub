@@ -1,39 +1,32 @@
 <template>
   <div class="fixed bottom-6 right-6 z-50 font-sans">
     
-    <!-- 1. 접힌 상태: 플로팅 버튼 (의뢰서 스펙 ①) -->
     <button 
       v-if="!isOpen"
       @click="toggleChat"
       class="bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-all flex items-center justify-center relative group"
     >
-      <!-- 깜찍한 알림 배지 효과 (UI 생동감 추가) -->
       <span class="absolute -top-1 -right-1 flex h-3.5 w-3.5">
         <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
         <span class="relative inline-flex rounded-full h-3.5 w-3.5 bg-red-500 text-[8px] text-white items-center justify-center font-bold">1</span>
       </span>
       
-      <!-- 챗봇 아이콘 (말풍선) -->
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
         <path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" />
       </svg>
     </button>
 
-    <!-- 2. 펼친 상태: 대화창 위젯 (의뢰서 스펙 ②, ③) -->
-    <!-- 모바일 전체 화면 대응: sm: 미만일 때 고정 해제 및 전체 화면 배치 클래스 적용 -->
     <div 
       v-else
       class="bg-white border border-gray-200/80 rounded-2xl shadow-2xl overflow-hidden flex flex-col transition-all duration-300 animate-slide-up
              w-screen h-screen fixed inset-0 
              sm:relative sm:w-[360px] sm:h-[480px] sm:inset-auto sm:rounded-2xl"
     >
-      <!-- 챗봇 헤더 -->
       <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-4 flex items-center justify-between shadow-sm">
         <div class="flex items-center gap-2">
           <div class="w-2.5 h-2.5 bg-green-400 rounded-full animate-pulse"></div>
           <span class="font-bold text-sm tracking-tight">LocalHub AI 가이드</span>
         </div>
-        <!-- 닫기 버튼 -->
         <button 
           @click="toggleChat"
           class="text-white/80 hover:text-white p-1 rounded-lg hover:bg-white/10 transition-colors"
@@ -44,14 +37,12 @@
         </button>
       </div>
 
-      <!-- 대화 히스토리 출력 영역 -->
       <div class="flex-1 p-4 overflow-y-auto space-y-3.5 bg-slate-50" ref="chatContainer">
         <div 
           v-for="(msg, idx) in chatHistory" 
           :key="idx"
           :class="['flex flex-col max-w-[80%]', msg.role === 'user' ? 'ml-auto items-end' : 'mr-auto items-start']"
         >
-          <!-- 말풍선 -->
           <div 
             :class="[
               'p-3 text-xs rounded-2xl shadow-sm leading-relaxed',
@@ -62,14 +53,12 @@
           >
             {{ msg.content }}
           </div>
-          <!-- 시간초 (디테일) -->
           <span class="text-[9px] text-gray-400 mt-1 px-1">
             {{ msg.time }}
           </span>
         </div>
       </div>
 
-      <!-- 대화 입력창 -->
       <form @submit.prevent="sendMessage" class="p-3 bg-white border-t border-gray-100 flex gap-2">
         <input 
           v-model="userInput"
@@ -96,7 +85,6 @@ const isOpen = ref(false)
 const userInput = ref('')
 const chatContainer = ref(null)
 
-// 초깃값 및 가상 대화 기록 세팅 (의뢰서 스펙 반영)
 const chatHistory = ref([
   { 
     role: 'bot', 
@@ -109,7 +97,6 @@ const toggleChat = () => {
   isOpen.value = !isOpen.value
 }
 
-// 자동 스크롤 함수 (대화가 길어질 때 최하단으로 밀어줌)
 const scrollToBottom = async () => {
   await nextTick()
   if (chatContainer.value) {
@@ -117,21 +104,18 @@ const scrollToBottom = async () => {
   }
 }
 
-// 모달이 열릴 때 스크롤 위치 보정
 watch(isOpen, (newVal) => {
   if (newVal) {
     scrollToBottom()
   }
 })
 
-// 가상 전송 및 응답 핸들러 (Day 2에 실제 OpenAI API 엔드포인트 연동 예정)
 const sendMessage = () => {
   if (!userInput.value.trim()) return
 
   const now = new Date()
   const timeString = now.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })
 
-  // 1. 유저 메시지 추가
   chatHistory.value.push({
     role: 'user',
     content: userInput.value,
@@ -142,7 +126,6 @@ const sendMessage = () => {
   userInput.value = ''
   scrollToBottom()
 
-  // 2. 가상 봇 리액션 (QA 테스트용 시나리오 작동)[cite: 2]
   setTimeout(() => {
     let botReply = '죄송해요, 해당 지역 정보는 아직 제가 열심히 공부 중이랍니다! 다른 관광지나 맛집을 질문해 주시겠어요?'
 

@@ -1,22 +1,17 @@
 <template>
   <div class="min-h-screen bg-gray-50 text-gray-900 font-sans pb-24">
-    <!-- 홈 화면 비주얼 이미지 배너 -->
     <section class="relative overflow-hidden text-white py-16 px-6 shadow-xl min-h-[380px] flex items-center justify-center">
       
-      <!-- 1. 배경 이미지 배치 (object-cover로 꽉 채우고 중심 맞추기) -->
       <img 
         src="@/assets/seoul-bg.jpg" 
         alt="서울 전경" 
         class="absolute inset-0 w-full h-full object-cover object-center"
       />
       
-      <!-- 2. 어두운 오버레이 필터 레이어 (글씨 가독성을 위해 어둡게 처리하고 은은한 푸른빛 얹기) -->
       <div class="absolute inset-0 bg-gradient-to-b from-slate-950/70 via-slate-900/60 to-slate-950/85"></div>
       
-      <!-- 3. 콘텐츠 레이아웃 (텍스트와 날씨 카드를 나란히 배치) -->
       <div class="relative z-10 max-w-5xl w-full mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 items-center text-left">
       
-        <!-- 좌측: 메인 타이틀 및 소개글 (2/3 분할) -->
         <div class="md:col-span-2 space-y-4">
           <span class="inline-flex items-center gap-1.5 bg-blue-500/30 text-blue-200 text-xs font-semibold px-3 py-1 rounded-full border border-blue-400/20 backdrop-blur-sm">
             <span class="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse"></span>
@@ -32,7 +27,6 @@
           </p>
         </div>
 
-        <!-- 우측: 실시간 날씨 정보 카드 (1/3 분할 - 프론트 단독 연동) -->
         <div class="md:col-span-1 bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/10 shadow-xl flex flex-col justify-between h-48">
           <div>
             <div class="flex justify-between items-center mb-1">
@@ -42,16 +36,13 @@
             <p class="text-[11px] text-slate-300">실시간 기상 정보</p>
           </div>
 
-          <!-- 로딩 상태 UI -->
           <div v-if="isLoading" class="flex flex-col items-center justify-center flex-1 py-2">
             <span class="w-6 h-6 border-2 border-blue-400 border-t-transparent rounded-full animate-spin"></span>
             <span class="text-[11px] text-slate-400 mt-2">날씨 정보 로딩 중...</span>
           </div>
 
-          <!-- 날씨 로드 완료 시 노출되는 메인 데이터 UI -->
           <div v-else-if="weatherInfo" class="flex items-center justify-between py-2">
             <div class="flex items-center gap-2">
-              <!-- OpenWeatherMap 공식 날씨 아이콘 매핑 -->
               <img 
                 :src="`https://openweathermap.org/img/wn/${weatherInfo.icon}@2x.png`" 
                 alt="날씨 아이콘"
@@ -68,45 +59,37 @@
             </div>
           </div>
 
-          <!-- 에러 혹은 초기 Mock 데이터 폴백 UI -->
           <div v-else class="flex flex-col items-center justify-center flex-1 text-center">
             <span class="text-2xl">☀️</span>
             <span class="text-xs text-slate-300 font-semibold mt-1">24°C | 맑음</span>
             <p class="text-[10px] text-slate-400">API 키를 세팅해 주세요.</p>
           </div>
 
-          <!-- 하단: 날씨 맞춤형 여행 가이드 가이드라인 안내 (의뢰서 스펙 반영) -->
           <div class="border-t border-white/10 pt-2.5 mt-1 text-[11px] text-blue-200 font-medium flex items-center gap-1 truncate">
             <span>{{ weatherRecommendation }}</span>
           </div>
         </div>
       </div>
     </section>
-    <!-- 메인 콘텐츠 영역 (1단 레이아웃으로 공수 최소화) -->
     <main class="max-w-5xl mx-auto px-4 mt-10">
       
-      <!-- 2. 카테고리 바로가기 카드 섹션 -->
       <section class="mb-12">
         <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
           <span>📂</span> 카테고리 바로가기
         </h2>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <!-- 관광지 카드 (배경 이미지 적용 및 호버 이펙트 고도화) -->
           <router-link 
             to="/tours" 
             class="group relative overflow-hidden h-40 rounded-2xl shadow-sm border border-gray-200/80 hover:border-blue-500 hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-end p-5 text-left"
           >
-            <!-- 1. 배경 이미지 (기본 상태에서 미세한 블러와 줌 효과 제공) -->
             <img 
               src="@/assets/tour-bg.jpg" 
               alt="관광지" 
               class="absolute inset-0 w-full h-full object-cover object-center filter brightness-95 group-hover:scale-110 transition-transform duration-500"
             />
 
-            <!-- 2. 그라데이션 어두운 오버레이 (하단 글씨가 또렷하게 보이도록 잡아주는 그라데이션) -->
             <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-900/40 to-transparent"></div>
 
-            <!-- 3. 카드 콘텐츠 (z-10으로 오버레이 위에 띄우기) -->
             <div class="relative z-10">
               <div class="flex items-center gap-1.5 mb-1">
                 <span class="text-xl group-hover:animate-bounce">🏛️</span>
@@ -116,47 +99,39 @@
             </div>
           </router-link>
 
-          <!-- 쇼핑 카드 (배경 이미지 적용 및 호버 이펙트 고도화) -->
           <router-link 
             to="/shopping" 
             class="group relative overflow-hidden h-40 rounded-2xl shadow-sm border border-gray-200/80 hover:border-blue-500 hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-end p-5 text-left"
           >
-            <!-- 1. 배경 이미지 (기본 상태에서 미세한 블러와 줌 효과 제공) -->
             <img 
               src="@/assets/shopping-bg.jpg" 
               alt="쇼핑" 
               class="absolute inset-0 w-full h-full object-cover object-center filter brightness-95 group-hover:scale-110 transition-transform duration-500"
             />
 
-            <!-- 2. 그라데이션 어두운 오버레이 (하단 글씨가 또렷하게 보이도록 잡아주는 그라데이션) -->
             <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-900/40 to-transparent"></div>
 
-            <!-- 3. 카드 콘텐츠 (z-10으로 오버레이 위에 띄우기) -->
             <div class="relative z-10">
               <div class="flex items-center gap-1.5 mb-1">
                 <span class="text-xl group-hover:animate-bounce">🛍️</span>
                 <span class="font-bold text-white text-lg tracking-tight drop-shadow-md">쇼핑</span>
               </div>
-              <p class="text-[11px] text-gray-200 font-medium drop-shadow-sm">전통시장부터 복합 쇼핑몰까지</p>
+              <p class="text-[11px] text-gray-200 font-medium drop-shadow-sm">편의점까지 싹싹 모아</p>
             </div>
           </router-link>
 
-          <!-- 축제·행사 카드 (배경 이미지 적용 및 호버 이펙트 고도화) -->
           <router-link 
             to="/festivals" 
             class="group relative overflow-hidden h-40 rounded-2xl shadow-sm border border-gray-200/80 hover:border-blue-500 hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-end p-5 text-left"
           >
-            <!-- 1. 배경 이미지 (기본 상태에서 미세한 블러와 줌 효과 제공) -->
             <img 
               src="@/assets/festival-bg.jpg" 
               alt="축제·행사" 
               class="absolute inset-0 w-full h-full object-cover object-center filter brightness-95 group-hover:scale-110 transition-transform duration-500"
             />
 
-            <!-- 2. 그라데이션 어두운 오버레이 (하단 글씨가 또렷하게 보이도록 잡아주는 그라데이션) -->
             <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-900/40 to-transparent"></div>
 
-            <!-- 3. 카드 콘텐츠 (z-10으로 오버레이 위에 띄우기) -->
             <div class="relative z-10">
               <div class="flex items-center gap-1.5 mb-1">
                 <span class="text-xl group-hover:animate-bounce">🎉</span>
@@ -168,7 +143,6 @@
         </div>
       </section>
 
-      <!-- 3. 최근 게시글 목록 섹션 (가상 Mock Data 바인딩) -->
       <section class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
         <div class="flex justify-between items-center mb-4">
           <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">
@@ -196,7 +170,7 @@
                     {{ post.title }}
                   </router-link>
                 </td>
-                <td class="py-3.5 px-4 text-right text-gray-400">{{ post.date }}</td>
+                <td class="py-3.5 px-4 text-right text-gray-400">{{ formatDate(post.created_at) }}</td>
               </tr>
             </tbody>
           </table>
@@ -208,11 +182,12 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'
+import { postApi } from '@/api/services'
 
 const weatherInfo = ref(null)
 const isLoading = ref(true)
+const mockPosts = ref([])
 
-// 날씨 상태에 따른 스마트 여행 적합 여부 메시지 자동 생성 (의뢰서 스펙 구현)
 const weatherRecommendation = computed(() => {
   if (isLoading.value) return '⏳ 기상 상태 분석 중...'
   if (!weatherInfo.value) return '🗺️ 오늘 서울은 여행하기 좋은 날씨입니다!'
@@ -235,13 +210,10 @@ const weatherRecommendation = computed(() => {
   return '🗺️ 쾌적한 날씨입니다! 야외 축제를 즐겨보세요!'
 })
 
-// 실시간 OpenWeatherMap API 호출 함수
 const fetchWeather = async () => {
-  // .env 파일에 등록한 API KEY 로드
   const API_KEY = import.meta.env.VITE_WEATHER_API_KEY
   const CITY = 'Seoul'
   
-  // 만약 API Key가 주입되지 않은 초기 마크업 단계라면 가상 데이터로 우회 처리하여 에러 방지
   if (!API_KEY || API_KEY.startsWith('네가_')) {
     setTimeout(() => {
       weatherInfo.value = {
@@ -264,7 +236,6 @@ const fetchWeather = async () => {
     
     const data = await response.json()
     
-    // 💡 번역 정제 로직 추가
     let cleanDescription = data.weather[0].description
     if (cleanDescription === '온흐림') {
       cleanDescription = '흐림'
@@ -276,7 +247,7 @@ const fetchWeather = async () => {
 
     weatherInfo.value = {
       temp: Math.round(data.main.temp),
-      description: cleanDescription, // 정제된 한글 단어로 바인딩!
+      description: cleanDescription,
       icon: data.weather[0].icon,
       humidity: data.main.humidity,
       wind: data.wind.speed
@@ -288,16 +259,31 @@ const fetchWeather = async () => {
   }
 }
 
+const formatDate = (isoString) => {
+  if (!isoString) return ''
+  try {
+    const date = new Date(isoString)
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    return `${month}/${day}`
+  } catch (error) {
+    console.error('날짜 변환 오류:', error)
+    return isoString
+  }
+}
+
+const fetchRecentPosts = async () => {
+  try {
+    const posts = await postApi.getPosts()
+    mockPosts.value = posts.slice(0, 5)
+  } catch (error) {
+    console.error('최근 게시글을 불러오지 못했습니다:', error)
+  }
+}
+
 onMounted(() => {
+  fetchRecentPosts()
   fetchWeather()
 })
 
-// API 연동 전 마크업 검증을 위한 가상 데이터 (Mock Data)
-const mockPosts = ref([
-  { id: 7, title: '서울 야간 궁궐 투어 코스 추천드립니다!', date: '07/14' },
-  { id: 6, title: '이번 주말 한강 달빛야시장 푸드트럭 라인업 공유', date: '07/14' },
-  { id: 5, title: '남산타워 케이블카 대기 시간 얼마나 걸리나요?', date: '07/13' },
-  { id: 4, title: '인사동 근처 전통 찻집 가성비 좋은 곳 찾았습니다.', date: '07/12' },
-  { id: 3, title: '익명 커뮤니티라 편하네요. 비밀번호 잘 기억하세요!', date: '07/11' }
-])
 </script>
