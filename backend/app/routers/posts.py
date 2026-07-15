@@ -54,6 +54,18 @@ def get_posts_page(page: int = 1, size: int = 10, db: Session = Depends(get_db))
 
 
 
+# 게시글 검색 API
+@router.get("/search", response_model=list[schemas_post.PostResponse])
+def search_posts(keyword: str, db: Session = Depends(get_db)):
+    posts = db.query(models_post.Post).filter(
+        models_post.Post.title.contains(keyword) |
+        models_post.Post.content.contains(keyword) |
+        models_post.Post.author.contains(keyword)
+    ).order_by(models_post.Post.id.desc()).all()
+    return posts
+
+
+
 # 게시글 상세 조회
 @router.get("/{post_id}", response_model=schemas_post.PostResponse)
 def get_post(post_id: int, db: Session = Depends(get_db)):
@@ -117,13 +129,3 @@ def delete_post(post_id: int, password: str, db: Session = Depends(get_db)):
     return {"message": "게시글이 삭제되었습니다."}
 
 
-
-# 게시글 검색 API
-@router.get("/search", response_model=list[schemas_post.PostResponse])
-def search_posts(keyword: str, db: Session = Depends(get_db)):
-    posts = db.query(models_post.Post).filter(
-        models_post.Post.title.contains(keyword) |
-        models_post.Post.content.contains(keyword) |
-        models_post.Post.author.contains(keyword)
-    ).order_by(models_post.Post.id.desc()).all()
-    return posts
