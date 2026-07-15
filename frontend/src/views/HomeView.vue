@@ -223,7 +223,7 @@ const weatherRecommendation = computed(() => {
   if (desc.includes('비') || desc.includes('소나기')) {
     return '☔ 실내 미술관이나 고궁 카페 투어를 추천해요!'
   }
-  if (desc.includes('흐림')){
+  if (desc.includes('흐림') || desc.includes('구름')){
     return '☁️ 햇빛이 약해요! 낙산공원 성곽길 산책은 어떨까요?'
   }
   if (temp >= 30) {
