@@ -116,15 +116,15 @@
             </div>
           </router-link>
 
-          <!-- 식당 카드 (배경 이미지 적용 및 호버 이펙트 고도화) -->
+          <!-- 쇼핑 카드 (배경 이미지 적용 및 호버 이펙트 고도화) -->
           <router-link 
-            to="/restaurants" 
+            to="/shopping" 
             class="group relative overflow-hidden h-40 rounded-2xl shadow-sm border border-gray-200/80 hover:border-blue-500 hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-end p-5 text-left"
           >
             <!-- 1. 배경 이미지 (기본 상태에서 미세한 블러와 줌 효과 제공) -->
             <img 
-              src="@/assets/restaurant-bg.jpg" 
-              alt="식당" 
+              src="@/assets/shopping-bg.jpg" 
+              alt="쇼핑" 
               class="absolute inset-0 w-full h-full object-cover object-center filter brightness-95 group-hover:scale-110 transition-transform duration-500"
             />
 
@@ -134,10 +134,10 @@
             <!-- 3. 카드 콘텐츠 (z-10으로 오버레이 위에 띄우기) -->
             <div class="relative z-10">
               <div class="flex items-center gap-1.5 mb-1">
-                <span class="text-xl group-hover:animate-bounce">🍕</span>
-                <span class="font-bold text-white text-lg tracking-tight drop-shadow-md">식당</span>
+                <span class="text-xl group-hover:animate-bounce">🛍️</span>
+                <span class="font-bold text-white text-lg tracking-tight drop-shadow-md">쇼핑</span>
               </div>
-              <p class="text-[11px] text-gray-200 font-medium drop-shadow-sm">서울 식당 모아모아</p>
+              <p class="text-[11px] text-gray-200 font-medium drop-shadow-sm">전통시장부터 복합 쇼핑몰까지</p>
             </div>
           </router-link>
 

@@ -35,9 +35,9 @@ const router = createRouter({
       component: () => import('../views/FestivalCalendarView.vue')
     },
     {
-      path: '/restaurants',
-      name: 'restaurant-list',
-      component: () => import('../views/RestaurantListView.vue')
+      path: '/shopping',
+      name: 'shopping-map',
+      component: () => import('../views/ShoppingMapView.vue')
     },
     {
       path: '/tours',
