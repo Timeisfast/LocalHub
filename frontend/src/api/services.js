@@ -66,3 +66,9 @@ export const festivalApi = {
     return api.get(`/events/${eventId}`)
   }
 }
+
+export const chatApi = {
+  sendMessage(message) {
+    return api.post('/api/chat/', { message })
+  }
+}
