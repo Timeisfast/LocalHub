@@ -1,4 +1,5 @@
 import os
+import shutil
 from pathlib import Path
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
@@ -8,17 +9,31 @@ load_dotenv()  # .env 파일 로드
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
-# 1. database.py 파일이 있는 위치를 기준으로 프로젝트 루트 디렉토리를 절대 경로로 계산합니다.
-# LocalHub/backend/app/database.py 이므로 .parent.parent.parent가 실제 프로젝트 루트입니다.
+# 1. 원본 파일 위치 찾기 (깃허브로 업로드된 프로젝트 루트 내 localhub.db)
 BASE_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = BASE_DIR.parents[1]
+ORIGINAL_DB_PATH = PROJECT_ROOT / "localhub.db"
 
-# 2. 업로드한 localhub.db 파일의 실제 절대 경로를 구합니다.
-DB_PATH = PROJECT_ROOT / "localhub.db"
+# 2. Render 서버 환경인지 확인
+if os.environ.get("RENDER"):
+    # 쓰기 권한이 보장되는 /tmp 디렉토리 경로 지정
+    RENDER_DB_PATH = Path("/tmp/localhub.db")
+    
+    # 서버 실행 시 최초 1회만 원본 DB 파일을 /tmp로 복사 (이미 있으면 덮어쓰지 않고 재사용)
+    if ORIGINAL_DB_PATH.exists() and not RENDER_DB_PATH.exists():
+        try:
+            shutil.copy2(ORIGINAL_DB_PATH, RENDER_DB_PATH)
+            print("Successfully copied database file to /tmp")
+        except Exception as e:
+            print(f"Failed to copy database: {e}")
+            
+    DB_PATH = RENDER_DB_PATH
+else:
+    # 로컬 개발 환경에서는 기존 경로 그대로 사용
+    DB_PATH = ORIGINAL_DB_PATH
 
-# 3. 데이터베이스 URL이 없을 때 파일이 존재하는 절대 경로를 주입합니다.
+# 3. 데이터베이스 URL 설정
 if not DATABASE_URL:
-    # 절대 경로인지 다시 한번 체크하여 sqlite:/// 형식을 완성합니다.
     DATABASE_URL = f"sqlite:///{DB_PATH.resolve().as_posix()}"
 
 engine = create_engine(
