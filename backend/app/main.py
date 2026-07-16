@@ -29,7 +29,7 @@ app = FastAPI(
 # 허용할 프론트엔드 주소들
 origins = [
     "http://localhost:5173",   # 개발용 React/Vite
-    # "https://새로운 프론트엔드 주소 .onrender.com",  # 배포된 프론트엔드 주소
+    "https://localhub3.netlify.app",  # 배포된 프론트엔드 주소
 ]
 
 app.add_middleware(
