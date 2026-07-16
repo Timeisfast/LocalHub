@@ -1,7 +1,12 @@
+import os
 from pathlib import Path
-
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
+from dotenv import load_dotenv
+
+load_dotenv()  # .env 파일 로드
+
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 
 # 현재 파일 위치:
@@ -16,8 +21,9 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 # LocalHub/localhub.db
 DB_PATH = PROJECT_ROOT / "localhub.db"
 
-DATABASE_URL = f"sqlite:///{DB_PATH.as_posix()}"
 
+if not DATABASE_URL:
+    DATABASE_URL = f"sqlite:///{DB_PATH.as_posix()}"
 
 engine = create_engine(
     DATABASE_URL,
