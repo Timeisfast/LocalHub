@@ -10,14 +10,16 @@
         <span class="text-gray-600 font-semibold">상세보기</span>
       </nav>
 
-      <div v-if="currentPost" class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div v-if="currentPost" class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
         <div class="p-6 border-b border-gray-100 bg-gray-50/50">
           <h1 class="text-2xl font-bold text-gray-900 mb-3">
             {{ currentPost.title }}
           </h1>
           <div class="flex items-center justify-between text-xs text-gray-400">
             <div class="flex items-center gap-2">
-              <span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded font-bold">익명</span>
+              <span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded font-bold">
+                {{ currentPost.author || '익명' }}
+              </span>
               <span>작성일: {{ formatDate(currentPost.created_at) }}</span>
             </div>
           </div>
@@ -47,6 +49,67 @@
               class="text-sm font-semibold text-red-600 hover:text-white border border-red-600 hover:bg-red-600 px-4 py-2 rounded-lg transition-all"
             >
               삭제
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div v-if="currentPost" class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-6">
+        <h3 class="text-base font-bold text-gray-800 flex items-center gap-2">
+          💬 댓글 <span class="text-blue-600 text-sm">{{ comments.length }}</span>
+        </h3>
+
+        <form @submit.prevent="submitComment" class="space-y-3">
+          <div class="flex gap-2">
+            <input 
+              v-model="newComment.author"
+              type="text" 
+              placeholder="닉네임 (기본: 익명)" 
+              class="w-36 bg-gray-50 text-xs rounded-lg border border-gray-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white transition-all font-semibold"
+            />
+          </div>
+          <div class="flex gap-2">
+            <textarea 
+              v-model="newComment.content"
+              rows="2"
+              placeholder="상냥하고 유익한 댓글을 남겨주세요." 
+              class="flex-1 bg-gray-50 text-xs rounded-lg border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all resize-none leading-relaxed"
+              required
+            ></textarea>
+            <button 
+              type="submit"
+              class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-5 rounded-lg transition-colors shrink-0"
+            >
+              등록
+            </button>
+          </div>
+        </form>
+
+        <div class="space-y-4 pt-2 border-t border-gray-100">
+          <div v-if="comments.length === 0" class="text-center py-8 text-xs text-gray-400 font-medium">
+            첫 번째 댓글을 작성해 보세요! 🎈
+          </div>
+
+          <div 
+            v-for="comment in comments" 
+            :key="comment.id"
+            class="flex justify-between items-start text-xs group"
+          >
+            <div class="space-y-1 pr-4">
+              <div class="flex items-center gap-2">
+                <span class="font-bold text-gray-800">{{ comment.author || '익명' }}</span>
+                <span class="text-[10px] text-gray-400">{{ formatCommentDate(comment.created_at) }}</span>
+              </div>
+              <p class="text-gray-700 leading-relaxed whitespace-pre-wrap">{{ comment.content }}</p>
+            </div>
+
+            <!-- 댓글 삭제 버튼 -->
+            <button 
+              @click="removeComment(comment.id)"
+              class="text-gray-300 hover:text-red-500 font-semibold p-1 transition-colors md:opacity-0 group-hover:opacity-100"
+              title="댓글 삭제"
+            >
+              ✕
             </button>
           </div>
         </div>
@@ -112,12 +175,16 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { postApi } from '@/api/services'
-
+import { postApi, commentApi } from '@/api/services'
 const route = useRoute()
 const router = useRouter()
 
 const currentPost = ref(null)
+const comments = ref([])
+const newComment = ref({
+  author: '',
+  content: ''
+})
 
 const isModalOpen = ref(false)
 const modalMode = ref('edit')
@@ -129,14 +196,62 @@ const formatDate = (isoString) => {
   return isoString.split('T')[0]
 }
 
+const formatCommentDate = (isoString) => {
+  if (!isoString) return ''
+  const date = new Date(isoString)
+  const yyyy = date.getFullYear()
+  const mm = String(date.getMonth() + 1).padStart(2, '0')
+  const dd = String(date.getDate()).padStart(2, '0')
+  const hh = String(date.getHours()).padStart(2, '0')
+  const min = String(date.getMinutes()).padStart(2, '0')
+  return `${yyyy}-${mm}-${dd} ${hh}:${min}`
+}
+
+const fetchComments = async (postId) => {
+  try {
+    comments.value = await commentApi.getComments(postId)
+  } catch (error) {
+    console.error('댓글 로드 실패:', error)
+  }
+}
+
 onMounted(async () => {
   const postId = parseInt(route.params.id)
   try {
     currentPost.value = await postApi.getPostDetail(postId)
+    await fetchComments(postId)
   } catch (error) {
     console.error('상세 정보 호출 실패:', error)
   }
 })
+
+const submitComment = async () => {
+  if (!newComment.value.content.trim()) return
+  const postId = currentPost.value.id
+
+  try {
+    const payload = {
+      content: newComment.value.content,
+      author: newComment.value.author.trim() || '익명'
+    }
+
+    await commentApi.createComment(postId, payload)
+    newComment.value.content = ''
+    await fetchComments(postId)
+  } catch (error) {
+    console.error('댓글 작성 실패:', error)
+  }
+}
+
+const removeComment = async (commentId) => {
+  if (!confirm('정말 이 댓글을 삭제하시겠습니까?')) return
+  try {
+    await commentApi.deleteComment(commentId)
+    await fetchComments(currentPost.value.id)
+  } catch (error) {
+    console.error('댓글 삭제 실패:', error)
+  }
+}
 
 const openPasswordModal = (mode) => {
   modalMode.value = mode

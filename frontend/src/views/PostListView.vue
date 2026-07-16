@@ -3,7 +3,9 @@
     <div class="max-w-5xl mx-auto">
       
       <nav class="text-xs text-gray-400 mb-4 font-medium">
-        <span>홈</span> <span class="mx-1">&gt;</span> <span class="text-gray-600 font-semibold">게시판</span>
+        <router-link to="/" class="hover:text-blue-600">홈</router-link> 
+        <span class="mx-1">&gt;</span> 
+        <span class="text-gray-600 font-semibold">게시판</span>
       </nav>
 
       <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 mb-6">
@@ -62,9 +64,17 @@
               >
                 <td class="py-4 px-6 text-gray-500 font-medium">{{ post.id }}</td>
                 <td class="py-4 px-6">
-                  <span class="text-gray-900 font-semibold hover:text-blue-600 transition-colors">
-                    {{ post.title }}
-                  </span>
+                  <div class="flex items-center gap-1.5">
+                    <span class="text-gray-900 font-semibold hover:text-blue-600 transition-colors">
+                      {{ post.title }}
+                    </span>
+                    <span 
+                      v-if="getCommentCount(post) > 0"
+                      class="text-[10px] font-extrabold bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded-md border border-blue-100/50"
+                    >
+                      {{ getCommentCount(post) }}
+                    </span>
+                  </div>
                 </td>
                 <td class="py-4 px-6 text-right text-gray-400 font-medium">{{ formatDate(post.created_at) }}</td>
               </tr>
@@ -115,7 +125,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { postApi } from '@/api/services'
+import { postApi, commentApi } from '@/api/services'
 
 const router = useRouter()
 const searchQuery = ref('')
@@ -136,22 +146,49 @@ const formatDate = (isoString) => {
   return `${month}/${day}`
 }
 
+const injectCommentsCount = async (posts) => {
+  try {
+    const commentPromises = posts.map(post =>
+      commentApi.getComments(post.id)
+      .then(comments => {
+        post.comments_count = comments.length
+      })
+      .catch(() => {
+        post.comments_count = 0
+      })
+    )
+
+    await Promise.all(commentPromises)
+  } catch (error) {
+    console.error('댓글 개수 동적 주입 중 실패: ', error)
+  }
+}
+
 const fetchPostData = async () => {
   try{
+    let posts = []
+
     if (searchQuery.value.trim()) {
-      const results = await postApi.searchPosts(searchQuery.value.trim())
-      filteredPosts.value = results
-      totalItems.value = results.length
+      posts = await postApi.searchPosts(searchQuery.value.trim())
+      totalItems.value = posts.length
       currentPage.value = 1
     } else {
       const allPosts = await postApi.getPosts()
       totalItems.value = allPosts.length
 
-      filteredPosts.value = await postApi.getPostsPage(currentPage.value, pageSize.value)
+      posts = await postApi.getPostsPage(currentPage.value, pageSize.value)
     }
+
+    await injectCommentsCount(posts)
+
+    filteredPosts.value = posts
   } catch (error) {
     console.error('게시글 로드 중 에러 발생:', error)
   }
+}
+
+const getCommentCount = (post) => {
+  return post ? (post.comments_count || 0) : 0
 }
 
 const changePage = (newPage) => {
