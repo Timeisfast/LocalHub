@@ -7,32 +7,35 @@ from dotenv import load_dotenv
 
 load_dotenv()  # .env 파일 로드
 
-DATABASE_URL = os.getenv("DATABASE_URL")
-
-# 1. 원본 파일 위치 찾기 (깃허브로 업로드된 프로젝트 루트 내 localhub.db)
+# ==========================================
+# [중요] 최우선 강제 복사 단계 (가장 먼저 실행됨)
+# ==========================================
 BASE_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = BASE_DIR.parents[1]
 ORIGINAL_DB_PATH = PROJECT_ROOT / "localhub.db"
 
-# 2. Render 서버 환경인지 확인
+# Render 배포 서버 환경인지 확인
 if os.environ.get("RENDER"):
-    # 쓰기 권한이 보장되는 /tmp 디렉토리 경로 지정
-    RENDER_DB_PATH = Path("/tmp/localhub.db")
+    DB_PATH = Path("/tmp/localhub.db")
     
-    # 서버 실행 시 최초 1회만 원본 DB 파일을 /tmp로 복사 (이미 있으면 덮어쓰지 않고 재사용)
-    if ORIGINAL_DB_PATH.exists() and not RENDER_DB_PATH.exists():
+    # 서버 기동 시 무조건 /tmp 폴더로 복사 수행 (기존 파일 유무 상관없이 무조건 덮어쓰기 복사하여 정합성 유지)
+    if ORIGINAL_DB_PATH.exists():
         try:
-            shutil.copy2(ORIGINAL_DB_PATH, RENDER_DB_PATH)
-            print("Successfully copied database file to /tmp")
+            shutil.copy2(ORIGINAL_DB_PATH, DB_PATH)
+            print(f"📦 [Render DB] {ORIGINAL_DB_PATH} -> {DB_PATH} 복사 완료!")
         except Exception as e:
-            print(f"Failed to copy database: {e}")
-            
-    DB_PATH = RENDER_DB_PATH
+            print(f"⚠️ [Render DB] 복사 중 오류 발생: {e}")
+    else:
+        print("⚠️ [Render DB] 깃허브에 업로드된 localhub.db 원본 파일을 찾을 수 없습니다.")
 else:
-    # 로컬 개발 환경에서는 기존 경로 그대로 사용
+    # 로컬 개발 환경
     DB_PATH = ORIGINAL_DB_PATH
 
-# 3. 데이터베이스 URL 설정
+# ==========================================
+# SQL Alchemy 설정 단계
+# ==========================================
+DATABASE_URL = os.getenv("DATABASE_URL")
+
 if not DATABASE_URL:
     DATABASE_URL = f"sqlite:///{DB_PATH.resolve().as_posix()}"
 
@@ -50,7 +53,7 @@ SessionLocal = sessionmaker(
 Base = declarative_base()
 
 # DB 경로 확인용 출력
-print(f"현재 연결된 DB URL: {DATABASE_URL}")
+print(f"현재 실제로 연결을 시도 중인 DB URL: {DATABASE_URL}")
 
 # ✅ FastAPI 의존성으로 쓸 DB 세션 함수
 def get_db():
