@@ -150,8 +150,9 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue'
 import { postApi, placeApi } from '@/api/services'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
+const route = useRoute()
 const router = useRouter()
 const mapContainer = ref(null)
 const selectedTour = ref(null)
@@ -159,6 +160,26 @@ const isMapLoading = ref(true)
 const relatedPosts = ref([])
 const mockTours = ref([])
 let mapInstance = null
+
+const handleQueryParamLocation = () => {
+  const targetId = route.query.id
+  if (!targetId || mockTours.value.length === 0) return
+
+  const matchedTour = mockTours.value.find(tour => tour.id === Number(targetId))
+
+  if (matchedTour) {
+    selectedTour.value = matchedTour
+
+    if (mapInstance) {
+      const position = new window.naver.maps.LatLng(
+        parseFloat(matchedTour.mapy),
+        parseFloat(matchedTour.mapx)
+      )
+      mapInstance.setCenter(position)
+      mapInstance.setZoom(15)
+    }
+  }
+}
 
 watch(selectedTour, async (newTour) => {
   if (!newTour) {
@@ -174,6 +195,13 @@ watch(selectedTour, async (newTour) => {
     relatedPosts.value = []
   }
 })
+
+watch(
+  () => route.query.id,
+  () => {
+    handleQueryParamLocation()
+  }
+)
 
 const goToPostDetail = (postId) => {
   router.push(`/posts/${postId}`)
@@ -239,6 +267,8 @@ const initMap = () => {
 
   renderMarkers()
   isMapLoading.value = false
+
+  handleQueryParamLocation()
 }
 
 const renderMarkers = () => {

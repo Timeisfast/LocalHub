@@ -68,7 +68,25 @@ export const festivalApi = {
 }
 
 export const chatApi = {
+  // 챗봇에 메시지 전송
   sendMessage(message) {
     return api.post('/api/chat/', { message })
+  }
+}
+
+export const commentApi = {
+  // 댓글 목록 조회
+  getComments(postId) {
+    return api.get(`/comments/${postId}`)
+  },
+  // 댓글 작성
+  createComment(postId, commentData) {
+    return api.post(`/comments/`, commentData, {
+      params: { post_id: postId }
+    })
+  },
+  // 댓글 삭제
+  deleteComment(commentId) {
+    return api.delete(`/comments/${commentId}`)
   }
 }

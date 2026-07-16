@@ -83,14 +83,33 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { festivalApi } from '@/api/services'
 import FullCalendar from '@fullcalendar/vue3'
 import dayGridPlugin from '@fullcalendar/daygrid'
+import { useRoute } from 'vue-router'
 
+const route = useRoute()
 const selectedEvent = ref(null)
 const festivalEvents = ref([])
 const calendarKey = ref(0)
+
+const handleQueryParamLocation = () => {
+  const targetId = route.query.id
+  if (!targetId || festivalEvents.value.length === 0) return
+
+  const matchedEvent = festivalEvents.value.find(event => event.id === Number(targetId))
+
+  if (matchedEvent) {
+    selectedEvent.value = {
+      title: matchedEvent.title,
+      start: matchedEvent.start,
+      end: matchedEvent.end,
+      backgroundColor: matchedEvent.backgroundColor,
+      extendedProps: matchedEvent.extendedProps
+    }
+  }
+}
 
 const calendarOptions = ref({
   plugins: [dayGridPlugin],
@@ -155,6 +174,7 @@ onMounted(async () => {
       }
 
       return {
+        id: event.id,
         title: event.title,
         start: event.start_date,
         end: finalEndDate ? finalEndDate : event.start_date,
@@ -171,10 +191,19 @@ onMounted(async () => {
     festivalEvents.value = parsedEvents
     calendarOptions.value.events = parsedEvents
     calendarKey.value++
+
+    handleQueryParamLocation()
   } catch (error) {
     console.error('축제 데이터 로드 실패:', error)
   }
 })
+
+watch(
+  () => route.query.id,
+  () => {
+    handleQueryParamLocation()
+  }
+)
 </script>
 
 <style>

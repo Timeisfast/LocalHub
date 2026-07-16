@@ -148,9 +148,10 @@
 
 <script setup>
 import { ref, onMounted, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { placeApi, postApi } from '@/api/services'
 
+const route = useRoute()
 const router = useRouter()
 const mapContainer = ref(null)
 const selectedShop = ref(null)
@@ -158,6 +159,26 @@ const isMapLoading = ref(true)
 const relatedPosts = ref([])
 const mockShops = ref([])
 let mapInstance = null
+
+const handleQueryParamLocation = () => {
+  const targetId = route.query.id
+  if (!targetId || mockShops.value.length === 0) return
+
+  const matchedShop = mockShops.value.find(shop => shop.id === Number(targetId))
+
+  if (matchedShop) {
+    selectedShop.value = matchedShop
+
+    if (mapInstance) {
+      const position = new window.naver.maps.LatLng(
+        parseFloat(matchedShop.mapy),
+        parseFloat(matchedShop.mapx)
+      )
+      mapInstance.setCenter(position)
+      mapInstance.setZoom(15)
+    }
+  }
+}
 
 watch(selectedShop, async (newShop) => {
   if (newShop) {
@@ -173,6 +194,13 @@ watch(selectedShop, async (newShop) => {
     return
   }
 })
+
+watch(
+  () => route.query.id,
+  () => {
+    handleQueryParamLocation()
+  }
+)
 
 const goToPostDetail = (postId) => {
   router.push(`/posts/${postId}`)
@@ -237,6 +265,8 @@ const initMap = () => {
   mapInstance = new window.naver.maps.Map(mapContainer.value, mapOptions)
   renderMarkers()
   isMapLoading.value = false
+
+  handleQueryParamLocation()
 }
 
 const renderMarkers = () => {
