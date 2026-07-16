@@ -32,7 +32,7 @@ Category = Literal[
 ALLOWED_MODEL = "gpt-5-mini"
 
 DEFAULT_RESULT_LIMIT = 4
-MAX_RESULT_LIMIT = 6
+MAX_RESULT_LIMIT = 5
 
 
 SEOUL_DISTRICTS = [
@@ -178,7 +178,7 @@ def get_openai_client() -> OpenAI:
 
     return OpenAI(
         api_key=api_key,
-        timeout=20.0,
+        timeout=10000.0,
         max_retries=1,
     )
 
